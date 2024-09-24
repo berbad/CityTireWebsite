@@ -1,0 +1,41 @@
+.hours-container {
+    text-align: center;
+    padding: 2rem;
+    background-color: transparent;
+  }
+  
+  .hours-title {
+    font-size: 2rem;
+    color: #ff4c4c;
+    margin-bottom: 1rem;
+  }
+  
+  .hours-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .hours-item {
+    background-color: #f1f1f1;
+    border-radius: 8px;
+    padding: 1rem;
+    width: 120px;
+    text-align: center;
+  }
+  
+  .hours-item.today {
+    background-color: #ff4c4c;
+    color: #fff;
+  }
+  
+  .day {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .time {
+    font-size: 0.875rem;
+  }
+  

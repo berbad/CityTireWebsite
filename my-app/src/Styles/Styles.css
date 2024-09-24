@@ -1,0 +1,216 @@
+/* Global Styles */
+body {
+  margin: 0;
+  padding: 0;
+  color: #000;
+  overflow-x: hidden;
+}
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: url("../Assets/tirewallpaper.jpg") no-repeat center center fixed;
+  background-size: cover; 
+}
+
+/* Home Page Styles */
+.home-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  margin-bottom: 40px;
+  flex-grow: 1;
+}
+
+.welcome-section {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
+  text-align: center;
+}
+
+.welcome-section h1 {
+  font-size: 2.5rem;
+  color: #ffcc00;
+  margin-bottom: 1rem;
+}
+
+.welcome-section p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: #fff;
+}
+
+.map-section {
+  color: #ffffff;
+  font-size: 1.7em;
+  padding: 20px;
+  text-align: center;
+}
+
+.map-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.map-container iframe {
+  width: 100%;
+  max-width: 600px;
+  height: 450px;
+  border: none;
+}
+
+.feature-section {
+  margin-top: 40px;
+}
+
+/* About Page Styles */
+#about-page {
+  background-color: transparent;
+  color: #fff;
+  padding: 100px 20px;
+}
+
+#about-page .about-content {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+#about-page h1 {
+  color: #ffcc00;
+  font-size: 2.8rem;
+  margin-bottom: 30px;
+}
+
+#about-page h2 {
+  color: #ffcc00;
+  font-size: 2.2rem;
+  margin-bottom: 25px;
+}
+
+#about-page p {
+  color: white;
+  font-size: 1.4rem;
+  line-height: 1.8;
+  margin-bottom: 25px;
+}
+
+#about-page ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+#about-page ul li {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+}
+
+#about-page ul li strong {
+  color: #ffcc00;
+}
+
+#about-page .thank-you {
+  margin-top: 100px;
+}
+
+/* Services Page Styles */
+#services-page {
+  background-color: transparent;
+  color: #fff;
+  padding: 80px 20px;
+}
+
+#services-page .services-content {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 900px;
+  margin: 0 auto;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+#services-page h1 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: #ffcc00;
+}
+
+#services-page p {
+  line-height: 1.8;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+#services-page ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+#services-page ul li {
+  margin-bottom: 20px;
+}
+
+#services-page ul li h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  color: #ffcc00; 
+}
+
+#services-page ul li p {
+  font-size: 1rem;
+}
+
+#services-page a {
+  color: #61dafb;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#services-page a:hover {
+  text-decoration: underline;
+}
+
+/* Login Page Styles */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+}
+
+.login-container h1 {
+  margin-bottom: 20px;
+}
+
+.login-container input {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+}
+
+.login-container button {
+  padding: 10px 20px;
+  background-color: #ffcc00;
+  border: none;
+  border-radius: 5px;
+  color: #000;
+  cursor: pointer;
+}
+
+.login-container button:hover {
+  background-color: #e6b800;
+}
