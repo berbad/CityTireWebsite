@@ -1,25 +1,31 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../Components/Navbar';
 import '../Styles/App.css';
-import config from '../config'
+import config from '../config';
 
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
-
-    const url = config.apiUrl
+    const url = config.apiUrl;
     const handleLogin = async () => {
         try {
             const response = await axios.post(`${url}/login`, {
                 username,
                 password
             });
-            setMessage('Login successful! Token: ' + response.data.token);
+            
+            localStorage.setItem('token', response.data.token);
+            
+            setMessage('Login successful!');
+            
+            navigate('/admin');
         } catch (error) {
-            setMessage('Login failed: ' + error.response.data.message);
+            setMessage('Login failed: ' + (error.response ? error.response.data.message : 'Unknown error'));
         }
     };
 

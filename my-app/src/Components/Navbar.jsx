@@ -17,13 +17,7 @@ const Navbar = () => {
             <li><Link to="/service3">Service 3</Link></li>
           </ul>
         </li>
-        
-        <li className="dropdown">
-          <Link to="/login">Login</Link>
-          <ul className="dropdown-menu">
-            <li><Link to="/register">Register</Link></li>
-          </ul>
-        </li>
+        <li><Link to="/contact">Contact Us</Link></li>
       </ul>
       <div className="navbar-address">
         <div>5112 N. Lincoln Ave.</div>

@@ -6,25 +6,28 @@ import About from "./pages/About";
 import Services from "./pages/Services";
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Admin from './pages/Admin';
 import axios from 'axios';
 import config from './config'
+import Contact from './pages/Contact';
 
 function App() {
   const [backendData, setBackendData] = useState([{}]);
 
-  const url = config.apiUrl
-    useEffect(() => {
-      axios
+  const url = config.apiUrl;
+  
+  useEffect(() => {
+    axios
       .get(`${url}/api`)
       .then(response => {
         console.log(response);
-        setBackendData(response.data); // Assuming you want to set the response data in state
+        setBackendData(response.data);
       })
       .catch((error) => {
         console.log(error);
         alert("Failed to load data. Please try again.");
       });
-  }, []); // The empty array ensures this runs only once, when the component is mounted.
+  }, []);
 
   return (
     <Routes>
@@ -32,8 +35,9 @@ function App() {
       <Route path="/home" element={<Home />} />
       <Route path="/about" element={<About />} />
       <Route path="/services" element={<Services />} />
-      <Route path="/login" element={<Login />} /> 
-      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/admin" element={<Admin />} /> 
+      <Route path="/contact" element={<Contact />} />
     </Routes>
   );
 }

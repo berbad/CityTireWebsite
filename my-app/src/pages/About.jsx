@@ -35,7 +35,7 @@ const About = () => {
             <li><strong>Customer Service:</strong> We go above and beyond to ensure you have a positive experience, from the moment you call us to when you drive away.</li>
           </ul>
           <p class='thank-you'>
-            Thank you for considering City Tire Repair Shop. We look forward to serving you and ensuring your safety and satisfaction on the road. Come visit us today at 5112 N. Lincoln Ave, Chicago, IL 60625, or give us a call at (773) 271-6009.
+            Thank you for considering City Tire Repair Shop. We look forward to serving you and ensuring your safety and satisfaction on the road. Come visit us today at 5112 N. Lincoln Ave, Chicago, IL 60625, or give us a call at <a href="tel:+17732716009">(773) 271-6009</a>.
           </p>
         </div>
       </section>
