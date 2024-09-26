@@ -21,19 +21,18 @@ if (!process.env.MONGODB_URI) {
 let isConnected = false;
 
 const connectToMongoDB = async () => {
-  if (isConnected) return;
-
-  try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    isConnected = true;
-    console.log('Connected to MongoDB');
-  } catch (err) {
-    console.error('MongoDB connection error:', err);
-  }
-};
+    if (isConnected) return;
+  
+    try {
+      await mongoose.connect(process.env.MONGODB_URI);
+      isConnected = true;
+      console.log('Connected to MongoDB');
+    } catch (err) {
+      console.error('MongoDB connection error:', err);
+    }
+  };
+  
+  
 
 connectToMongoDB();
 
@@ -67,26 +66,39 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(400).json({ message: 'User not found' });
+    const { username, password } = req.body;
+  
+    try {
+      const user = await User.findOne({ username });
+      
+      // Log whether the user was found
+      console.log('User found:', user);
+  
+      if (!user) {
+        return res.status(400).json({ message: 'User not found' });
+      }
+  
+      const isValidPassword = bcrypt.compareSync(password, user.password);
+      
+      // Log whether the password is valid
+      console.log('Password valid:', isValidPassword);
+  
+      if (!isValidPassword) {
+        return res.status(400).json({ message: 'Invalid password' });
+      }
+  
+      const payload = { id: user._id, username: user.username };
+      const token = jwt.encode(payload, SECRET_KEY);
+      
+      // Log the generated JWT token
+      console.log('JWT Token generated:', token);
+  
+      res.json({ token });
+    } catch (error) {
+      console.error('Login error:', error); // Log the error if any
+      res.status(500).json({ message: 'Login failed', error });
     }
-
-    const isValidPassword = bcrypt.compareSync(password, user.password);
-    if (!isValidPassword) {
-      return res.status(400).json({ message: 'Invalid password' });
-    }
-
-    const payload = { id: user._id, username: user.username };
-    const token = jwt.encode(payload, SECRET_KEY);
-
-    res.json({ token });
-  } catch (error) {
-    res.status(500).json({ message: 'Login failed', error });
-  }
-});
+  });
+  
 
 module.exports.handler = serverless(app);
