@@ -8,7 +8,5 @@ provider:
 functions:
   app:
     handler: server.handler
-    # CORS configuration for API Gateway if applicable
-    url: 
-      cors: true
+    url:
       invokeMode: BUFFERED

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';  // Added useNavigate for redirection
 import Navbar from '../Components/Navbar';
 import '../Styles/App.css';
 import config from '../config'
@@ -8,9 +9,9 @@ function Register() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
-    
+    const navigate = useNavigate();  // Hook to navigate between pages
 
-    const url = config.apiUrl
+    const url = config.apiUrl;
     const handleRegister = async () => {
         try {
             const response = await axios.post(`${url}/register`, {
@@ -18,8 +19,17 @@ function Register() {
                 password
             });
             setMessage('Registration successful! You can now log in.');
+            
+            // Redirect to login page after successful registration
+            navigate('/login');  
         } catch (error) {
-            setMessage('Registration failed: ' + error.response.data.message);
+            if (error.response) {
+                setMessage(`Registration failed: ${error.response.data.message}`);
+            } else if (error.request) {
+                setMessage('Registration failed: No response from server.');
+            } else {
+                setMessage(`Registration failed: ${error.message}`);
+            }
         }
     };
 

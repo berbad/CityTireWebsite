@@ -103,7 +103,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-641f6165-2443",
-                "S3Key": "serverless/MyLambdaFunction/dev/1727388725310-2024-09-26T22:12:05.310Z/MyLambdaFunction.zip"
+                "S3Key": "serverless/MyLambdaFunction/dev/1727391281715-2024-09-26T22:54:41.715Z/MyLambdaFunction.zip"
               },
               "Handler": "server.handler",
               "Runtime": "nodejs18.x",
@@ -121,14 +121,14 @@
               "AppLogGroup"
             ]
           },
-          "AppLambdaVersionJuMmAz9ZKd6H40wS3YKuurL0Pcc2QDN7AWeIHFfqo04": {
+          "AppLambdaVersion6BF3owl3kKdBTbUrla434iDDSpGGvD2vpUxD3rctic": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "AppLambdaFunction"
               },
-              "CodeSha256": "3zAciT59skQuJxt9g4CjGSSel1M9Lv7ZJcoYE8wCOQA="
+              "CodeSha256": "WTi+uQkCervnTLSqW2oWcMah1TmB1bxUq2qNBx6g0qo="
             }
           },
           "AppLambdaFunctionUrl": {
@@ -139,22 +139,6 @@
                 "Fn::GetAtt": [
                   "AppLambdaFunction",
                   "Arn"
-                ]
-              },
-              "Cors": {
-                "AllowHeaders": [
-                  "Content-Type",
-                  "X-Amz-Date",
-                  "Authorization",
-                  "X-Api-Key",
-                  "X-Amz-Security-Token",
-                  "X-Amzn-Trace-Id"
-                ],
-                "AllowMethods": [
-                  "*"
-                ],
-                "AllowOrigins": [
-                  "*"
                 ]
               }
             }
@@ -181,7 +165,7 @@
           "AppLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "AppLambdaVersionJuMmAz9ZKd6H40wS3YKuurL0Pcc2QDN7AWeIHFfqo04"
+              "Ref": "AppLambdaVersion6BF3owl3kKdBTbUrla434iDDSpGGvD2vpUxD3rctic"
             },
             "Export": {
               "Name": "sls-MyLambdaFunction-dev-AppLambdaFunctionQualifiedArn"
@@ -208,7 +192,6 @@
       "app": {
         "handler": "server.handler",
         "url": {
-          "cors": true,
           "invokeMode": "BUFFERED"
         },
         "events": [],
@@ -218,7 +201,7 @@
         "timeout": 6,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "AppLambdaVersionJuMmAz9ZKd6H40wS3YKuurL0Pcc2QDN7AWeIHFfqo04"
+        "versionLogicalId": "AppLambdaVersion6BF3owl3kKdBTbUrla434iDDSpGGvD2vpUxD3rctic"
       }
     },
     "configValidationMode": "warn",
@@ -238,7 +221,7 @@
     "artifact": "C:\\Users\\Berdason\\proj\\backend\\.serverless\\MyLambdaFunction.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/MyLambdaFunction/dev/1727388725310-2024-09-26T22:12:05.310Z",
+    "artifactDirectoryName": "serverless/MyLambdaFunction/dev/1727391281715-2024-09-26T22:54:41.715Z",
     "artifact": "MyLambdaFunction.zip"
   }
 }

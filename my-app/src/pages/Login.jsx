@@ -18,14 +18,21 @@ function Login() {
                 username,
                 password
             });
-            
+
             localStorage.setItem('token', response.data.token);
-            
+
             setMessage('Login successful!');
             
+            // Redirect to protected admin page
             navigate('/admin');
         } catch (error) {
-            setMessage('Login failed: ' + (error.response ? error.response.data.message : 'Unknown error'));
+            if (error.response) {
+                setMessage(`Login failed: ${error.response.data.message}`);
+            } else if (error.request) {
+                setMessage('Login failed: No response from server.');
+            } else {
+                setMessage(`Login failed: ${error.message}`);
+            }
         }
     };
 
