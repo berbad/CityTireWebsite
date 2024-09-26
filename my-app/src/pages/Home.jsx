@@ -4,7 +4,7 @@ import Navbar from '../Components/Navbar';
 import Hours from '../Components/Hours';
 import '../Styles/Styles.css';
 
-const Home = () => {
+const Home = ({ backendData }) => {
   return (
     <div className="page-wrapper">
       <Navbar />
@@ -25,6 +25,9 @@ const Home = () => {
             journey starts here – with tires that ensure safety, performance,
             and reliability on the road.
           </p>
+
+          <p>{backendData ? `Backend says: ${backendData.message}` : "Loading..."}</p>
+
         </section>
       </main>
       <FeatureSection />

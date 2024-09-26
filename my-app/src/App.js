@@ -8,7 +8,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Admin from './pages/Admin';
 import axios from 'axios';
-import config from './config'
+import config from './config';
 import Contact from './pages/Contact';
 
 function App() {
@@ -31,12 +31,13 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/home" element={<Home />} />
+      <Route path="/" element={<Home backendData={backendData} />} />
+      <Route path="/home" element={<Home backendData={backendData} />} />
       <Route path="/about" element={<About />} />
       <Route path="/services" element={<Services />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/admin" element={<Admin />} /> 
+      <Route path="/register" element={<Register />} />
+      <Route path="/admin" element={<Admin />} />
       <Route path="/contact" element={<Contact />} />
     </Routes>
   );
