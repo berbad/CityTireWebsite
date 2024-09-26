@@ -1,13 +1,24 @@
 require('dotenv').config();
+const serverless = require('serverless-http')
 
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jwt-simple');
-const app = express();
 const mongoose = require('mongoose');
 const User = require('./models/User');  
+const app = express();
 
+
+const SECRET_KEY = process.env.SECRET_KEY;
+if (!SECRET_KEY) {
+  console.error('FATAL ERROR: SECRET_KEY is not defined.');
+  process.exit(1);
+}
+if (!process.env.MONGODB_URI) {
+  console.error('FATAL ERROR: MONGODB_URI is not defined.');
+  process.exit(1);
+}
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
@@ -17,9 +28,11 @@ mongoose.connect(process.env.MONGODB_URI, {
     .catch(err => console.error('MongoDB connection error:', err));
 
 app.use(express.json());
-app.use(cors());
 
-const SECRET_KEY = process.env.SECRET_KEY;
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000'
+}));
+
 
 app.get('/api', (req, res) => {
     res.json({ message: "Hello from the backend!" });
@@ -67,5 +80,9 @@ app.post('/login', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 5000; // Updated port to 5000
+
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+module.exports.handler=serverless(app)

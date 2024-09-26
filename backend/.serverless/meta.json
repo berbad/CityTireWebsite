@@ -1,0 +1,295 @@
+{
+  "C:\\Users\\Berdason\\proj\\backend": {
+    "versionSfCore": null,
+    "versionFramework": "4.4.3",
+    "isWithinCompose": false,
+    "isCompose": false,
+    "composeOrgName": null,
+    "composeResolverProviders": {
+      "default-aws-credential-resolver": "<REDACTED>"
+    },
+    "composeServiceName": null,
+    "servicePath": "C:\\Users\\Berdason\\proj\\backend",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "MyLambdaFunction",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs18.x",
+        "region": "us-east-1",
+        "stage": "dev",
+        "versionFunctions": true,
+        "compiledCloudFormationTemplate": {
+          "AWSTemplateFormatVersion": "2010-09-09",
+          "Description": "The AWS CloudFormation template for this Serverless application",
+          "Resources": {
+            "AppLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/MyLambdaFunction-dev-app"
+              }
+            },
+            "IamRoleLambdaExecution": {
+              "Type": "AWS::IAM::Role",
+              "Properties": {
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": [
+                          "lambda.amazonaws.com"
+                        ]
+                      },
+                      "Action": [
+                        "sts:AssumeRole"
+                      ]
+                    }
+                  ]
+                },
+                "Policies": [
+                  {
+                    "PolicyName": {
+                      "Fn::Join": [
+                        "-",
+                        [
+                          "MyLambdaFunction",
+                          "dev",
+                          "lambda"
+                        ]
+                      ]
+                    },
+                    "PolicyDocument": {
+                      "Version": "2012-10-17",
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:CreateLogStream",
+                            "logs:CreateLogGroup",
+                            "logs:TagResource"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/MyLambdaFunction-dev*:*"
+                            }
+                          ]
+                        },
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:PutLogEvents"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/MyLambdaFunction-dev*:*:*"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "Path": "/",
+                "RoleName": {
+                  "Fn::Join": [
+                    "-",
+                    [
+                      "MyLambdaFunction",
+                      "dev",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "lambdaRole"
+                    ]
+                  ]
+                }
+              }
+            },
+            "AppLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-us-east-1-641f6165-2443",
+                  "S3Key": "serverless/MyLambdaFunction/dev/1727388725310-2024-09-26T22:12:05.310Z/MyLambdaFunction.zip"
+                },
+                "Handler": "server.handler",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "MyLambdaFunction-dev-app",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "AppLogGroup"
+              ]
+            },
+            "AppLambdaVersionJuMmAz9ZKd6H40wS3YKuurL0Pcc2QDN7AWeIHFfqo04": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "AppLambdaFunction"
+                },
+                "CodeSha256": "3zAciT59skQuJxt9g4CjGSSel1M9Lv7ZJcoYE8wCOQA="
+              }
+            },
+            "AppLambdaFunctionUrl": {
+              "Type": "AWS::Lambda::Url",
+              "Properties": {
+                "AuthType": "NONE",
+                "TargetFunctionArn": {
+                  "Fn::GetAtt": [
+                    "AppLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Cors": {
+                  "AllowCredentials": "<REDACTED>",
+                  "AllowHeaders": [
+                    "Content-Type",
+                    "X-Amz-Date",
+                    "Authorization",
+                    "X-Api-Key",
+                    "X-Amz-Security-Token",
+                    "X-Amzn-Trace-Id"
+                  ],
+                  "AllowMethods": [
+                    "*"
+                  ],
+                  "AllowOrigins": [
+                    "*"
+                  ]
+                }
+              }
+            },
+            "AppLambdaPermissionFnUrl": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "AppLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunctionUrl",
+                "Principal": "*",
+                "FunctionUrlAuthType": "NONE"
+              }
+            }
+          },
+          "Outputs": {
+            "ServerlessDeploymentBucketName": {
+              "Value": "serverless-framework-deployments-us-east-1-641f6165-2443",
+              "Export": {
+                "Name": "sls-MyLambdaFunction-dev-ServerlessDeploymentBucketName"
+              }
+            },
+            "AppLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "AppLambdaVersionJuMmAz9ZKd6H40wS3YKuurL0Pcc2QDN7AWeIHFfqo04"
+              },
+              "Export": {
+                "Name": "sls-MyLambdaFunction-dev-AppLambdaFunctionQualifiedArn"
+              }
+            },
+            "AppLambdaFunctionUrl": {
+              "Description": "Lambda Function URL",
+              "Value": {
+                "Fn::GetAtt": [
+                  "AppLambdaFunctionUrl",
+                  "FunctionUrl"
+                ]
+              },
+              "Export": {
+                "Name": "sls-MyLambdaFunction-dev-AppLambdaFunctionUrl"
+              }
+            }
+          }
+        },
+        "vpc": {}
+      },
+      "functions": {
+        "app": {
+          "handler": "server.handler",
+          "url": {
+            "cors": true,
+            "invokeMode": "BUFFERED"
+          },
+          "events": [],
+          "name": "MyLambdaFunction-dev-app",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "AppLambdaVersionJuMmAz9ZKd6H40wS3YKuurL0Pcc2QDN7AWeIHFfqo04"
+        }
+      }
+    },
+    "serviceRawFile": "service: MyLambdaFunction\r\n\r\nprovider:\r\n  name: aws\r\n  runtime: nodejs18.x\r\n  region: us-east-1\r\n\r\nfunctions:\r\n  app:\r\n    handler: server.handler\r\n    # CORS configuration for API Gateway if applicable\r\n    url: \r\n      cors: true\r\n      invokeMode: BUFFERED\r\n",
+    "command": [
+      "deploy"
+    ],
+    "options": {},
+    "error": null,
+    "params": {},
+    "machineId": "273f2c27feb1163ffd90fde534141689",
+    "stage": "dev",
+    "accessKeyV2": "<REDACTED>",
+    "accessKeyV1": "<REDACTED>",
+    "orgId": "085670c6-cb56-42d1-93eb-5a24557517de",
+    "orgName": "berbad",
+    "userId": "l8jQSJ0hnkNtrKlm4S",
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "userName": "berbad",
+    "subscription": null,
+    "userEmail": "berbad21@gmail.com",
+    "serviceProviderAwsRegion": "us-east-1",
+    "serviceProviderAwsCredentials": "<REDACTED>",
+    "serviceProviderAwsAccountId": "585768154953",
+    "projectType": "traditional",
+    "versionSf": "4.4.3",
+    "serviceProviderAwsCfStackName": "MyLambdaFunction-dev",
+    "integrations": {},
+    "serviceUniqueId": "arn:aws:cloudformation:us-east-1:585768154953:stack/MyLambdaFunction-dev/6c18f410-7c4f-11ef-a5e8-0e7e52d8e349",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:us-east-1:585768154953:stack/MyLambdaFunction-dev/6c18f410-7c4f-11ef-a5e8-0e7e52d8e349",
+    "serviceProviderAwsCfStackCreated": "2024-09-26T21:36:43.106Z",
+    "serviceProviderAwsCfStackUpdated": "2024-09-26T22:12:10.463Z",
+    "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "AppLambdaFunctionUrl",
+        "OutputValue": "https://tfx7qlzln6pwxdrv6rp5bqv4c40expet.lambda-url.us-east-1.on.aws/",
+        "Description": "Lambda Function URL",
+        "ExportName": "sls-MyLambdaFunction-dev-AppLambdaFunctionUrl"
+      },
+      {
+        "OutputKey": "AppLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:us-east-1:585768154953:function:MyLambdaFunction-dev-app:10",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-MyLambdaFunction-dev-AppLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "serverless-framework-deployments-us-east-1-641f6165-2443",
+        "ExportName": "sls-MyLambdaFunction-dev-ServerlessDeploymentBucketName"
+      }
+    ]
+  }
+}

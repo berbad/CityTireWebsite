@@ -1,0 +1,14 @@
+service: MyLambdaFunction
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+
+functions:
+  app:
+    handler: server.handler
+    # CORS configuration for API Gateway if applicable
+    url: 
+      cors: true
+      invokeMode: BUFFERED
