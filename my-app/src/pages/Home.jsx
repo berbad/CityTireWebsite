@@ -26,8 +26,6 @@ const Home = ({ backendData }) => {
             and reliability on the road.
           </p>
 
-          <p>{backendData ? `Backend says: ${backendData.message}` : "Loading..."}</p>
-
         </section>
       </main>
       <FeatureSection />
