@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from '../Components/Navbar';
-import '../Styles/Styles.css'; // Assuming this is where your CSS styles are located
+import '../Styles/Styles.css';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -25,7 +25,7 @@ const ContactUs = () => {
 
   return (
     <div className="page-wrapper">
-      <Navbar /> {/* Navbar included as part of the page wrapper */}
+      <Navbar /> 
       
       <div className="contact-container" style={{ padding: '20px', textAlign: 'center' }}>
         <h2>Contact Us</h2>
