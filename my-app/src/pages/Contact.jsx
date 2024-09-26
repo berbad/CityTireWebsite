@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from '../Components/Navbar';
+import axios from 'axios';
 import '../Styles/Styles.css';
 
 const ContactUs = () => {
@@ -10,6 +11,9 @@ const ContactUs = () => {
     message: '',
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formStatus, setFormStatus] = useState('');
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -19,17 +23,31 @@ const ContactUs = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert('Thank you for contacting us! We will get back to you shortly.');
-    setFormData({ name: '', email: '', phone: '', message: '' });
+    setIsSubmitting(true);
+    
+    const formspreeEndpoint = 'https://formspree.io/f/xeojyjve';
+    
+    axios.post(formspreeEndpoint, formData)
+      .then(response => {
+        setFormStatus('Thank you for contacting us! We will get back to you shortly.');
+        setIsSubmitting(false);
+        setFormData({ name: '', email: '', phone: '', message: '' });
+      })
+      .catch(error => {
+        setFormStatus('Failed to send the message. Please try again later.');
+        setIsSubmitting(false);
+      });
   };
 
   return (
     <div className="page-wrapper">
-      <Navbar /> 
+      <Navbar />
       
       <div className="contact-container" style={{ padding: '20px', textAlign: 'center' }}>
         <h2>Contact Us</h2>
         <p>Have questions or need help? Fill out the form below or reach out to us directly!</p>
+
+        {formStatus && <p style={{ color: formStatus.includes('Failed') ? 'red' : 'green' }}>{formStatus}</p>}
 
         <form onSubmit={handleSubmit} style={{ maxWidth: '500px', margin: '0 auto' }}>
           <div style={{ marginBottom: '10px' }}>
@@ -82,16 +100,16 @@ const ContactUs = () => {
             />
           </div>
 
-          <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#333', color: '#fff', border: 'none' }}>
-            Send Message
+          <button type="submit" disabled={isSubmitting} style={{ padding: '10px 20px', backgroundColor: '#333', color: '#fff', border: 'none' }}>
+            {isSubmitting ? 'Sending...' : 'Send Message'}
           </button>
         </form>
 
         <div className="shop-info" style={{ marginTop: '30px' }}>
           <h3>Our Shop Information</h3>
           <p><strong>City Tire Repair Shop</strong></p>
-          <p>123 Main St, Chicago, IL 60601</p>
-          <p>Phone: <a href="tel:7737270457">773-727-0457</a></p>
+          <p>5112 N Lincoln Ave, Chicago, IL 60625</p>
+          <p>Phone: <a href="tel:7732716009">(773) 271-6009</a></p>
           <p>Email: <a href="mailto:citytirerepairshop5112@gmail.com">citytirerepairshop5112@gmail.com</a></p>
           <p>Open Hours: Monday - Friday: 8 AM - 6 PM</p>
         </div>

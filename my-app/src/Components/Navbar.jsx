@@ -11,11 +11,6 @@ const Navbar = () => {
         <li><Link to="/about">About</Link></li>
         <li className="dropdown">
           <Link to="/services">Services</Link>
-          <ul className="dropdown-menu">
-            <li><Link to="/service1">Service 1</Link></li>
-            <li><Link to="/service2">Service 2</Link></li>
-            <li><Link to="/service3">Service 3</Link></li>
-          </ul>
         </li>
         <li><Link to="/contact">Contact Us</Link></li>
       </ul>
@@ -28,3 +23,8 @@ const Navbar = () => {
 };
 
 export default Navbar;
+{/* <ul className="dropdown-menu">
+<li><Link to="/service1">Service 1</Link></li>
+<li><Link to="/service2">Service 2</Link></li>
+<li><Link to="/service3">Service 3</Link></li>
+</ul> */}

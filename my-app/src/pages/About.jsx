@@ -10,32 +10,29 @@ const About = () => {
         <div className="about-content">
           <h1>About City Tire Repair Shop</h1>
           <p>
-            Welcome to City Tire Repair Shop! Since our inception in 2005, we have been dedicated to providing the Chicagoland area with top-notch tire services. As a family-owned and operated business, we take pride in treating our customers like family.
+            At City Tire Repair Shop, we’ve been providing quality used tires to the Chicagoland area since 2005. As a family-owned business, we’re committed to offering affordable, reliable tire services while treating every customer like part of the family.
           </p>
           <p>
-            Our journey started with a simple mission: to offer fast, reliable, and affordable tire solutions to our community. Over the years, we've expanded our services to include not just tire sales and repairs, but also a range of automotive services designed to keep you safe on the road.
+            Our mission is simple: to help drivers save money with high-quality used tires while ensuring safety on the road. Whether you need a tire replacement, repair, or expert advice, our experienced team is here to assist.
           </p>
-          <p>
-            What sets us apart? It's our commitment to quality and our unparalleled customer service. Our team is composed of experienced professionals who are passionate about what they do. Whether you're here for a tire replacement, a routine check-up, or expert advice, you can count on us to provide the best care for your vehicle.
-          </p>
+
           <h2>Our Values</h2>
           <ul>
-            <li><strong>Integrity:</strong> We believe in honest, transparent service. You'll always know what you're getting and why.</li>
-            <li><strong>Quality:</strong> We use top-quality products and ensure all our work meets the highest standards.</li>
-            <li><strong>Community:</strong> We are proud to be a part of the Chicagoland community and strive to give back whenever we can.</li>
-            <li><strong>Customer Focus:</strong> Your satisfaction is our top priority. We're here to make sure you leave with a smile.</li>
+            <li><strong>Integrity:</strong> Honest and upfront pricing for all our services.</li>
+            <li><strong>Quality:</strong> Every tire is inspected to meet safety standards.</li>
+            <li><strong>Customer Care:</strong> We strive to provide excellent service with every visit.</li>
+            <li><strong>Community:</strong> Proud to serve the Chicago area with dedication and care.</li>
           </ul>
+
           <h2>Why Choose Us?</h2>
-          <p>
-            At City Tire Repair Shop, we know you have choices when it comes to your automotive needs. Here’s why you should choose us:
-          </p>
           <ul>
-            <li><strong>Expertise:</strong> Our technicians are highly skilled and continuously trained to stay up-to-date with the latest in tire and automotive technology.</li>
-            <li><strong>Convenience:</strong> We offer a wide range of services under one roof, making us a one-stop-shop for all your tire and automotive needs.</li>
-            <li><strong>Customer Service:</strong> We go above and beyond to ensure you have a positive experience, from the moment you call us to when you drive away.</li>
+            <li><strong>Affordable Tires:</strong> Save money with top-quality used tires.</li>
+            <li><strong>Expert Service:</strong> Skilled technicians to ensure your vehicle is road-ready.</li>
+            <li><strong>Convenience:</strong> Fast, friendly service to get you back on the road quickly.</li>
           </ul>
-          <p class='thank-you'>
-            Thank you for considering City Tire Repair Shop. We look forward to serving you and ensuring your safety and satisfaction on the road. Come visit us today at 5112 N. Lincoln Ave, Chicago, IL 60625, or give us a call at <a href="tel:+17732716009">(773) 271-6009</a>.
+
+          <p className='thank-you'>
+            Visit us at 5112 N. Lincoln Ave, Chicago, or call <a href="tel:+17732716009">(773) 271-6009</a> to learn more about how we can help with your tire needs.
           </p>
         </div>
       </section>
