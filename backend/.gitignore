@@ -1,5 +1,4 @@
 .env
-REACT_APP_API_URL=https://tfx7qlzln6pwxdrv6rp5bqv4c40expet.lambda-url.us-east-1.on.aws
 
 # Ignore node_modules directory
 node_modules/

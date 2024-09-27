@@ -34,10 +34,12 @@ const connectToMongoDB = async () => {
 
 connectToMongoDB();
 
+// Middleware
 app.use(express.json());
 app.use(cors({ origin: '*' }));
 app.options('*', cors());
 
+// Routes
 app.get('/api', (req, res) => {
   res.json({ message: 'Hello from the backend!' });
 });
@@ -66,6 +68,7 @@ app.post('/login', async (req, res) => {
 
   try {
     const user = await User.findOne({ username });
+
     console.log('User found:', user);
 
     if (!user) {
@@ -73,6 +76,7 @@ app.post('/login', async (req, res) => {
     }
 
     const isValidPassword = bcrypt.compareSync(password, user.password);
+
     console.log('Password valid:', isValidPassword);
 
     if (!isValidPassword) {
@@ -81,11 +85,12 @@ app.post('/login', async (req, res) => {
 
     const payload = { id: user._id, username: user.username };
     const token = jwt.encode(payload, SECRET_KEY);
+
     console.log('JWT Token generated:', token);
 
     res.json({ token });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', error); // Log the error if any
     res.status(500).json({ message: 'Login failed', error });
   }
 });

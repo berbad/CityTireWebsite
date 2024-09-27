@@ -103,7 +103,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-641f6165-2443",
-                "S3Key": "serverless/MyLambdaFunction/dev/1727461952145-2024-09-27T18:32:32.145Z/MyLambdaFunction.zip"
+                "S3Key": "serverless/MyLambdaFunction/dev/1727462735697-2024-09-27T18:45:35.697Z/MyLambdaFunction.zip"
               },
               "Handler": "server.handler",
               "Runtime": "nodejs18.x",
@@ -121,14 +121,14 @@
               "AppLogGroup"
             ]
           },
-          "AppLambdaVersionapXfZdiO2mKnPOlPH5KF4doAkiu3vzgrPF7kI0BM": {
+          "AppLambdaVersiond4G8nNYsrbD92UmiOqPzkc5Td5pjfcunrx55aN6Kpy4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "AppLambdaFunction"
               },
-              "CodeSha256": "SscrrW0jc3ozYWwbixpdXWRRU5NDl8RdOQWJeaX9qNQ="
+              "CodeSha256": "nlJAl3WcpFeuUEAeDvXEz5hv3L+6kgZuJ228qcYNTRA="
             }
           },
           "AppLambdaFunctionUrl": {
@@ -165,7 +165,7 @@
           "AppLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "AppLambdaVersionapXfZdiO2mKnPOlPH5KF4doAkiu3vzgrPF7kI0BM"
+              "Ref": "AppLambdaVersiond4G8nNYsrbD92UmiOqPzkc5Td5pjfcunrx55aN6Kpy4"
             },
             "Export": {
               "Name": "sls-MyLambdaFunction-dev-AppLambdaFunctionQualifiedArn"
@@ -201,7 +201,7 @@
         "memory": 1024,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "AppLambdaVersionapXfZdiO2mKnPOlPH5KF4doAkiu3vzgrPF7kI0BM"
+        "versionLogicalId": "AppLambdaVersiond4G8nNYsrbD92UmiOqPzkc5Td5pjfcunrx55aN6Kpy4"
       }
     },
     "configValidationMode": "warn",
@@ -221,7 +221,7 @@
     "artifact": "C:\\Users\\Berdason\\proj\\backend\\.serverless\\MyLambdaFunction.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/MyLambdaFunction/dev/1727461952145-2024-09-27T18:32:32.145Z",
+    "artifactDirectoryName": "serverless/MyLambdaFunction/dev/1727462735697-2024-09-27T18:45:35.697Z",
     "artifact": "MyLambdaFunction.zip"
   }
 }
