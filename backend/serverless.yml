@@ -8,5 +8,6 @@ provider:
 functions:
   app:
     handler: server.handler
+    timeout: 30
     url:
       invokeMode: BUFFERED
