@@ -7,24 +7,20 @@ const jwt = require('jwt-simple');
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const app = express();
+const getSecret = require('./Secrets')
 
-const SECRET_KEY = process.env.SECRET_KEY;
-if (!SECRET_KEY) {
-  console.error('FATAL ERROR: SECRET_KEY is not defined.');
-  process.exit(1);
-}
-if (!process.env.MONGODB_URI) {
-  console.error('FATAL ERROR: MONGODB_URI is not defined.');
-  process.exit(1);
-}
+console.log("Starting server...");
 
 let isConnected = false;
+
 
 const connectToMongoDB = async () => {
   if (isConnected) return;
 
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    const MONGODB_URI = await getSecret('MONGODB_URI')
+    console.log("Connecting to MongoDB with URI:", MONGODB_URI);
+    await mongoose.connect(MONGODB_URI);
     isConnected = true;
     console.log('Connected to MongoDB');
   } catch (err) {
@@ -66,33 +62,42 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  try {
-    const user = await User.findOne({ username });
+  console.log("Login attempt with username:", username);
 
+  try {
+    console.log('Attempting to find user in MongoDB...');
+    const user = await User.findOne({ username });
     console.log('User found:', user);
 
     if (!user) {
+      console.log("User not found");
       return res.status(400).json({ message: 'User not found' });
     }
 
     const isValidPassword = bcrypt.compareSync(password, user.password);
-
     console.log('Password valid:', isValidPassword);
 
     if (!isValidPassword) {
+      console.log("Invalid password");
       return res.status(400).json({ message: 'Invalid password' });
     }
 
     const payload = { id: user._id, username: user.username };
+    const SECRET_KEY = await getSecret('SECRET_KEY')
     const token = jwt.encode(payload, SECRET_KEY);
 
     console.log('JWT Token generated:', token);
 
     res.json({ token });
   } catch (error) {
-    console.error('Login error:', error); // Log the error if any
+    console.error('Login error:', error); 
     res.status(500).json({ message: 'Login failed', error });
   }
+});
+
+app.get('/secretTest', async (req, res) => {
+  await getSecret('bood')
+  res.json({ message: 'Hello from the backend!' });
 });
 
 module.exports.handler = serverless(app);

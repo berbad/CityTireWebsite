@@ -112,7 +112,7 @@
               "Properties": {
                 "Code": {
                   "S3Bucket": "serverless-framework-deployments-us-east-1-641f6165-2443",
-                  "S3Key": "serverless/MyLambdaFunction/dev/1727462735697-2024-09-27T18:45:35.697Z/MyLambdaFunction.zip"
+                  "S3Key": "serverless/MyLambdaFunction/dev/1727504540389-2024-09-28T06:22:20.389Z/MyLambdaFunction.zip"
                 },
                 "Handler": "server.handler",
                 "Runtime": "nodejs18.x",
@@ -130,14 +130,14 @@
                 "AppLogGroup"
               ]
             },
-            "AppLambdaVersiond4G8nNYsrbD92UmiOqPzkc5Td5pjfcunrx55aN6Kpy4": {
+            "AppLambdaVersionjP5gzTtzWjQWgrbYWdzhYkTmhskoWoF53S4E74A": {
               "Type": "AWS::Lambda::Version",
               "DeletionPolicy": "Retain",
               "Properties": {
                 "FunctionName": {
                   "Ref": "AppLambdaFunction"
                 },
-                "CodeSha256": "nlJAl3WcpFeuUEAeDvXEz5hv3L+6kgZuJ228qcYNTRA="
+                "CodeSha256": "isO2XxHkaDdJ439btXYo+04ej2LYAbwlJLkagOOY6uI="
               }
             },
             "AppLambdaFunctionUrl": {
@@ -177,7 +177,7 @@
             "AppLambdaFunctionQualifiedArn": {
               "Description": "Current Lambda function version",
               "Value": {
-                "Ref": "AppLambdaVersiond4G8nNYsrbD92UmiOqPzkc5Td5pjfcunrx55aN6Kpy4"
+                "Ref": "AppLambdaVersionjP5gzTtzWjQWgrbYWdzhYkTmhskoWoF53S4E74A"
               },
               "Export": {
                 "Name": "sls-MyLambdaFunction-dev-AppLambdaFunctionQualifiedArn"
@@ -212,7 +212,7 @@
           "memory": 1024,
           "runtime": "nodejs18.x",
           "vpc": {},
-          "versionLogicalId": "AppLambdaVersiond4G8nNYsrbD92UmiOqPzkc5Td5pjfcunrx55aN6Kpy4"
+          "versionLogicalId": "AppLambdaVersionjP5gzTtzWjQWgrbYWdzhYkTmhskoWoF53S4E74A"
         }
       }
     },
@@ -252,7 +252,7 @@
     "serviceUniqueId": "arn:aws:cloudformation:us-east-1:585768154953:stack/MyLambdaFunction-dev/6c18f410-7c4f-11ef-a5e8-0e7e52d8e349",
     "serviceProviderAwsCfStackId": "arn:aws:cloudformation:us-east-1:585768154953:stack/MyLambdaFunction-dev/6c18f410-7c4f-11ef-a5e8-0e7e52d8e349",
     "serviceProviderAwsCfStackCreated": "2024-09-26T21:36:43.106Z",
-    "serviceProviderAwsCfStackUpdated": "2024-09-27T18:45:40.975Z",
+    "serviceProviderAwsCfStackUpdated": "2024-09-28T06:22:24.426Z",
     "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
     "serviceProviderAwsCfStackOutputs": [
       {
@@ -263,7 +263,7 @@
       },
       {
         "OutputKey": "AppLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:585768154953:function:MyLambdaFunction-dev-app:24",
+        "OutputValue": "arn:aws:lambda:us-east-1:585768154953:function:MyLambdaFunction-dev-app:35",
         "Description": "Current Lambda function version",
         "ExportName": "sls-MyLambdaFunction-dev-AppLambdaFunctionQualifiedArn"
       },
