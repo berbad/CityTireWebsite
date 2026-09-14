@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directories:
+      - /
+      - /backend
+      - /my-app
+    schedule:
+      interval: weekly
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
