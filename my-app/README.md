@@ -16,3 +16,5 @@ Deploy the contents of `build/` at the domain root. Configure the static host to
 This repository tracks `build/`; regenerate it after source or dependency updates and deploy the complete new folder so obsolete JavaScript bundles are removed. Production source maps are disabled by default and are not published. The old CRA `asset-manifest.json` is no longer generated; deployment should use `build/index.html` and its hashed asset references.
 
 CI: `npm ci && npm test && npm run build`, followed by `npm audit --audit-level=moderate`. The lockfile includes patched runtime and build dependencies; use normal parent dependency upgrades before introducing overrides.
+
+Vercel uses `my-app` as its project root. `my-app/vercel.json` explicitly selects Vite, `npm ci`, `npm run build`, and the `build` output directory so a saved Create React App preset cannot select the old build pipeline. It also rewrites the existing SPA routes to `index.html`. Keep the Vercel project root set to `my-app`.
