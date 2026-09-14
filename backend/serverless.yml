@@ -2,7 +2,7 @@ service: MyLambdaFunction
 
 provider:
   name: aws
-  runtime: nodejs18.x
+  runtime: nodejs24.x
   region: us-east-1
 
 functions:
@@ -11,3 +11,9 @@ functions:
     timeout: 30
     url:
       invokeMode: BUFFERED
+
+package:
+  excludeDevDependencies: true
+  patterns:
+    - "!test/**"
+    - "!.env*"

@@ -1,70 +1,20 @@
-# Getting Started with Create React App
+# City Tire frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Use Node.js 24 LTS and npm 11. Install reproducibly with `npm ci`.
 
-## Available Scripts
+- `npm start`: Vite development server at http://localhost:3000 with hot reload.
+- `npm test`: receipt PDF and SPA route regression tests, run once (suitable for CI).
+- `npm run build`: production site in `build/`.
+- `npm run preview`: inspect the production build at http://localhost:3000.
 
-In the project directory, you can run:
+The Vite migration replaces the unmaintained Create React App build dependency graph. React 18, the existing styles, public assets and route paths are preserved. React Router uses its patched v7 component APIs. Receipt generation uses jsPDF text primitives and is tested against actual PDF output.
 
-### `npm start`
+Development API requests still use http://localhost:5000; production keeps the existing API URL in `src/config.js`. Vite supplies `import.meta.env.DEV` and `import.meta.env.BASE_URL` in place of CRA's environment globals. Never put credentials into frontend environment variables: values included in a build are public.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Deploy the contents of `build/` at the domain root. Configure the static host to serve `index.html` for SPA paths (such as `/services`, `/login`, and `/admin`) while serving existing assets normally. The default development server and preview server handle these paths. The API is deployed separately.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+This repository tracks `build/`; regenerate it after source or dependency updates and deploy the complete new folder so obsolete JavaScript bundles are removed. Production source maps are disabled by default and are not published. The old CRA `asset-manifest.json` is no longer generated; deployment should use `build/index.html` and its hashed asset references.
 
-### `npm test`
+CI: `npm ci && npm test && npm run build`, followed by `npm audit --audit-level=moderate`. The lockfile includes patched runtime and build dependencies; use normal parent dependency upgrades before introducing overrides.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Vercel uses `my-app` as its project root. `my-app/vercel.json` explicitly selects Vite, `npm ci`, `npm run build`, and the `build` output directory so a saved Create React App preset cannot select the old build pipeline. It also rewrites the existing SPA routes to `index.html`. Keep the Vercel project root set to `my-app`.

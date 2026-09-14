@@ -44,7 +44,7 @@ const Navbar = () => {
           <Link to="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 bg-tire-red rounded-sm flex items-center justify-center transition-transform group-hover:scale-110">
               <img
-                src={`${process.env.PUBLIC_URL}/o.jpg`}
+                src={`${import.meta.env.BASE_URL}o.jpg`}
                 alt="City Tire Shop logo"
                 className="w-full h-full rounded-sm object-cover"
               />
