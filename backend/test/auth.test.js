@@ -1,166 +1,110 @@
-const { test, mock } = require('node:test');
+const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
-const util = require('node:util');
-const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const jwt = require('jwt-simple');
-const { SecretsManagerClient } = require('@aws-sdk/client-secrets-manager');
-const User = require('../models/User');
-process.env.NODE_ENV = 'production';
-
-const uri = 'mongodb://test-user:test-password@invalid.test/test';
-const signingKey = 'test-only-signing-key';
-let logs = [];
-mock.method(console, 'log', (...args) => logs.push(util.format(...args)));
-mock.method(console, 'error', (...args) => logs.push(util.format(...args)));
-mock.method(SecretsManagerClient.prototype, 'send', async () => ({
-  SecretString: JSON.stringify({ MONGODB_URI: uri, SECRET_KEY: signingKey })
-}));
-mock.method(mongoose, 'connect', async () => mongoose);
-const { handler } = require('../server');
-
-let requestNumber = 0;
-async function request(path, body, method = 'POST') {
-  const result = await handler({
-    httpMethod: method, path, headers: { 'content-type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    requestContext: { identity: { sourceIp: `198.51.100.${++requestNumber}` } }, isBase64Encoded: false
+const crypto = require('node:crypto');
+const serverless = require('serverless-http');
+const { openDatabase } = require('./helpers/database');
+let db, handler, appFactory, now = new Date('2026-10-26T15:00:00Z');
+const adminId = '507f1f77bcf86cd799439011';
+const email = 'citytirerepairshop5112@gmail.com';
+const origin = 'https://www.citytireshop.com';
+const config = { adminId, adminEmail: email, origins: [origin], production: true };
+let ip = 0;
+async function request(path, { body, method = 'POST', cookie, csrf, sourceIp, requestOrigin = origin, target = handler } = {}) {
+  const response = await target({ version:'2.0', routeKey:'$default', rawPath:path.split('?')[0], rawQueryString:path.split('?')[1] || '',
+    headers:{ host:'example.lambda-url.us-east-1.on.aws', 'content-type':'application/json', ...(requestOrigin ? {origin:requestOrigin} : {}), ...(cookie ? {cookie} : {}), ...(csrf ? {'x-csrf-token':csrf} : {}) },
+    requestContext:{http:{method,path:path.split('?')[0],sourceIp:sourceIp || `192.0.2.${++ip}`}}, body:body === undefined ? undefined : JSON.stringify(body), isBase64Encoded:false
   }, {});
-  return { status: result.statusCode, body: JSON.parse(result.body) };
+  return {status:response.statusCode, headers:response.headers, cookies:response.cookies || [], body:JSON.parse(response.body || '{}')};
 }
-
-test('rejects operator-shaped and non-string credentials before querying MongoDB', async () => {
-  const lookup = mock.method(User, 'findOne', async () => null);
-  try {
-    for (const route of ['/login', '/register']) {
-      for (const body of [
-        { username: { $ne: null }, password: 'valid' },
-        { username: 'user', password: { $gt: '' } },
-        { username: ['user'], password: 'valid' },
-        { username: 'user', password: 123 },
-        { username: '', password: 'valid' },
-        { username: 'user', password: '' }, {}, undefined
-      ]) {
-        const response = await request(route, body);
-        assert.equal(response.status, 400);
-        assert.equal(lookup.mock.callCount(), 0, 'invalid credentials must never reach a database query');
-      }
-    }
-  } finally { lookup.mock.restore(); }
+before(async () => {
+  // Dynamic load lets the first test explicitly report the missing application contract.
+  const source = require('../server');
+  assert.equal(typeof source.createApp, 'function', 'backend must expose a testable session application');
+  appFactory = source.createApp;
+  db = await openDatabase();
+  await db.connection.collection('users').insertMany([
+    {_id:new (require('mongoose').Types.ObjectId)(adminId), username:'badel', email, password:await bcrypt.hash('test-only-password',10)},
+    {username:'a',email:'other@example.com',password:await bcrypt.hash('test-only-password',10)}
+  ]);
+  handler = serverless(appFactory({connect:async()=>db.connection,config,clock:()=>new Date(now)}));
 });
-
-test('login preserves JWT behavior without logging credentials, hashes, or tokens', async () => {
-  const password = 'test-password';
-  const hash = bcrypt.hashSync(password, 10);
-  const lookup = mock.method(User, 'findOne', async () => ({
-    _id: 'user-123', username: 'test-user', password: hash
-  }));
-  try {
-    const response = await request('/login', { username: 'test-user', password });
-    assert.equal(response.status, 200);
-    assert.deepEqual(jwt.decode(response.body.token, signingKey), { id: 'user-123', username: 'test-user' });
-    const output = logs.join('\n');
-    for (const secret of [uri, 'test-user', hash, response.body.token, signingKey]) {
-      assert.ok(!output.includes(secret), 'logs must not contain sensitive authentication data');
-    }
-  } finally { lookup.mock.restore(); logs = []; }
+after(async()=>{if(db) await db.close();});
+test('registration is closed at both legacy and API URLs',async()=>{
+  for(const path of ['/register','/api/register']) assert.equal((await request(path,{body:{username:'new',password:'password'}})).status,410);
+  assert.equal(await db.connection.collection('users').countDocuments(),2);
 });
-
-test('registration hashes passwords and preserves duplicate-account response', async () => {
-  const lookup = mock.method(User, 'findOne', async () => null);
-  let saved;
-  const save = mock.method(User.prototype, 'save', async function () { saved = this; return this; });
-  try {
-    assert.equal((await request('/register', { username: 'new-user', password: 'test-password' })).status, 201);
-    assert.equal(saved.username, 'new-user');
-    assert.ok(bcrypt.compareSync('test-password', saved.password));
-    lookup.mock.mockImplementation(async () => saved);
-    assert.equal((await request('/register', { username: 'new-user', password: 'test-password' })).status, 400);
-  } finally { lookup.mock.restore(); save.mock.restore(); }
+test('login accepts only the selected admin and returns a secure cookie instead of a browser token',async()=>{
+  const result=await request('/api/login',{body:{email:email.toUpperCase(),password:'test-only-password'}});
+  assert.equal(result.status,200); assert.equal(result.body.token,undefined); assert.equal(result.body.user.email,email);
+  const cookie=result.cookies[0] || result.headers['set-cookie'];
+  for(const flag of ['__Host-city_session=','HttpOnly','Secure','SameSite=Lax','Path=/']) assert.ok(cookie.includes(flag),flag);
+  assert.ok(!cookie.includes('Domain='));
+  const raw=cookie.split(';')[0].split('=')[1];
+  const saved=await db.connection.collection('sessions').findOne({tokenHash:crypto.createHash('sha256').update(raw).digest('hex')});
+  assert.ok(saved); assert.ok(!JSON.stringify(saved).includes(raw));
+  const session=await request('/api/session',{method:'GET',cookie:cookie.split(';')[0]});
+  assert.equal(session.status,200); assert.ok(session.body.csrfToken); assert.match(session.headers['cache-control'],/no-store/);
 });
-
-test('login rejects wrong passwords and missing accounts', async () => {
-  const lookup = mock.method(User, 'findOne', async () => ({ password: bcrypt.hashSync('correct', 4) }));
-  try {
-    assert.equal((await request('/login', { username: 'user', password: 'wrong' })).status, 400);
-    lookup.mock.mockImplementation(async () => null);
-    assert.equal((await request('/login', { username: 'missing', password: 'wrong' })).status, 400);
-  } finally { lookup.mock.restore(); }
+test('invalid, missing and other-account credentials have the same generic response',async()=>{
+  const results=[];
+  for(const body of [{email,password:'incorrect'},{email:'missing@example.com',password:'incorrect'},{email:'other@example.com',password:'test-only-password'}]) results.push(await request('/api/login',{body}));
+  for(const result of results){assert.equal(result.status,401);assert.deepEqual(result.body,results[0].body);}
+  for(const body of [{email:{$ne:null},password:'x'},{email,password:{$gt:''}},{}]) assert.equal((await request('/api/login',{body})).status,400);
 });
-
-test('database failures do not leak internal errors into responses or logs', async () => {
-  const internal = Object.assign(new Error('database failed with secret-uri'), { detail: 'sensitive-database-value' });
-  const lookup = mock.method(User, 'findOne', async () => { throw internal; });
-  logs = [];
-  try {
-    for (const route of ['/register', '/login']) {
-      const response = await request(route, { username: 'user', password: 'password' });
-      assert.equal(response.status, 500);
-      assert.deepEqual(Object.keys(response.body), ['message']);
-    }
-    assert.ok(!logs.join('\n').includes('secret-uri'));
-    assert.ok(!logs.join('\n').includes('sensitive-database-value'));
-  } finally { lookup.mock.restore(); }
+test('missing and forged cookies cannot read private data',async()=>{
+  assert.equal((await request('/api/session',{method:'GET'})).status,401);
+  assert.equal((await request('/api/session',{method:'GET',cookie:'__Host-city_session=forged'})).status,401);
 });
-
-test('public greeting route remains available', async () => {
-  assert.deepEqual(await request('/api', undefined, 'GET'), {
-    status: 200, body: { message: 'Hello from the backend!' }
-  });
+test('mutations require trusted origin and CSRF; logout revokes sessions',async()=>{
+  const login=await request('/api/login',{body:{email,password:'test-only-password'}});
+  const cookie=(login.cookies[0]||login.headers['set-cookie']).split(';')[0];
+  assert.equal((await request('/api/logout',{cookie})).status,403);
+  assert.equal((await request('/api/logout',{cookie,csrf:login.body.csrfToken,requestOrigin:'https://evil.example'})).status,403);
+  assert.equal((await request('/api/logout',{cookie,csrf:login.body.csrfToken})).status,204);
+  assert.equal((await request('/api/session',{method:'GET',cookie})).status,401);
+  assert.equal((await request('/api/login',{body:{email,password:'test-only-password'},requestOrigin:null})).status,403);
 });
-
-test('malformed JSON returns a generic error without reflecting input or stack traces', async () => {
-  const response = await handler({
-    httpMethod: 'POST', path: '/login', headers: { 'content-type': 'application/json' },
-    body: '{"password":"sensitive-input",',
-    requestContext: { identity: { sourceIp: '127.0.0.1' } }, isBase64Encoded: false
-  }, {});
-  assert.equal(response.statusCode, 400);
-  assert.ok(!response.body.includes('sensitive-input'));
-  assert.ok(!response.body.includes('SyntaxError'));
-  assert.ok(!response.body.includes('node_modules'));
+test('sessions expire server-side even before MongoDB TTL cleanup',async()=>{
+  const login=await request('/api/login',{body:{email,password:'test-only-password'}});
+  const cookie=(login.cookies[0]||login.headers['set-cookie']).split(';')[0];
+  now=new Date(now.getTime()+31*60*1000);
+  assert.equal((await request('/api/session',{method:'GET',cookie})).status,401);
 });
-
-test('CORS allows the production frontend and rejects unrelated origins', async () => {
-  for (const [origin, allowed] of [
-    ['https://www.citytireshop.com', true],
-    ['https://attacker.example', false],
-    ['https://www.citytireshop.com.attacker.example', false],
-    ['http://localhost:3000', false]
-  ]) {
-    const response = await handler({
-      httpMethod: 'OPTIONS', path: '/login',
-      headers: { origin, 'access-control-request-method': 'POST' },
-      requestContext: { identity: { sourceIp: '192.0.2.20' } }
-    }, {});
-    const header = response.headers['access-control-allow-origin'];
-    assert.equal(header, allowed ? origin : undefined);
-  }
+test('rate limits are shared by separately constructed Lambda applications',async()=>{
+  const second=serverless(appFactory({connect:async()=>db.connection,config,clock:()=>new Date(now)}));
+  for(let n=0;n<10;n++) assert.equal((await request('/api/login',{body:{email,password:'wrong'},sourceIp:'198.51.100.9',target:n%2?second:handler})).status,401);
+  assert.equal((await request('/api/login',{body:{email,password:'wrong'},sourceIp:'198.51.100.9',target:second})).status,429);
 });
-
-test('rate limits repeated login and registration attempts from one client', async () => {
-  for (const [route, limit, ip] of [['/login', 20, '192.0.2.30'], ['/register', 5, '192.0.2.31']]) {
-    const event = {
-      httpMethod: 'POST', path: route,
-      headers: { 'content-type': 'application/json' }, body: '{}',
-      requestContext: { identity: { sourceIp: ip } }, isBase64Encoded: false
-    };
-    for (let n = 0; n < limit; n++) assert.equal((await handler(event, {})).statusCode, 400);
-    const blocked = await handler(event, {});
-    assert.equal(blocked.statusCode, 429);
-    assert.ok(blocked.headers['retry-after']);
-    const otherClient = { ...event, requestContext: { identity: { sourceIp: '192.0.2.32' } } };
-    assert.equal((await handler(otherClient, {})).statusCode, 400);
-  }
+test('database failures return unavailable and never expose internals',async()=>{
+  const broken=serverless(appFactory({connect:async()=>{throw new Error('private connection string');},config}));
+  const result=await request('/api/session',{method:'GET',target:broken});
+  assert.equal(result.status,503); assert.ok(!JSON.stringify(result).includes('private connection string'));
 });
-
-test('Function URL v2 requests are rate limited using the trusted source IP', async () => {
-  const event = {
-    version: '2.0', routeKey: '$default', rawPath: '/login', rawQueryString: '',
-    headers: { 'content-type': 'application/json', host: 'example.lambda-url.us-east-1.on.aws' },
-    requestContext: { http: { method: 'POST', path: '/login', sourceIp: '203.0.113.15', protocol: 'HTTP/1.1' } },
-    body: '{}', isBase64Encoded: false
-  };
-  for (let n = 0; n < 20; n++) assert.equal((await handler(event, {})).statusCode, 400);
-  assert.equal((await handler(event, {})).statusCode, 429);
+test('malformed CSRF tokens are rejected as forbidden, not internal errors',async()=>{
+  const login=await request('/api/login',{body:{email,password:'test-only-password'}});
+  const cookie=(login.cookies[0]||login.headers['set-cookie']).split(';')[0];
+  assert.equal((await request('/api/logout',{cookie,csrf:'é'.repeat(64)})).status,403);
+});
+test('recovery is single use, preserves account identity and revokes prior sessions',async()=>{
+  const token=crypto.randomBytes(32).toString('hex');
+  const login=await request('/api/login',{body:{email,password:'test-only-password'}});
+  const cookie=(login.cookies[0]||login.headers['set-cookie']).split(';')[0];
+  await db.connection.collection('recoveries').insertOne({userId:new (require('mongoose').Types.ObjectId)(adminId),tokenHash:crypto.createHash('sha256').update(token).digest('hex'),expiresAt:new Date(now.getTime()+60000)});
+  assert.equal((await request('/api/recover',{body:{token,password:'new-test-password'}})).status,200);
+  assert.equal((await request('/api/session',{method:'GET',cookie})).status,401);
+  assert.equal((await request('/api/recover',{body:{token,password:'other-test-password'}})).status,400);
+  assert.equal((await request('/api/login',{body:{email,password:'new-test-password'}})).status,200);
+  const account=await db.connection.collection('users').findOne({username:'badel'});assert.equal(String(account._id),adminId);
+  assert.equal(await db.connection.collection('users').countDocuments(),2);
+});
+test('a password reset racing with an old-password login cannot leave an authorized session',async()=>{
+ const original=bcrypt.compare;let release,started;const paused=new Promise(resolve=>{release=resolve;});const comparing=new Promise(resolve=>{started=resolve;});
+ bcrypt.compare=async(password,value)=>{const valid=await original(password,value);if(password==='new-test-password'){started();await paused;}return valid;};
+ try{
+  const login=request('/api/login',{body:{email,password:'new-test-password'}});await comparing;
+  const token=crypto.randomBytes(32).toString('hex');await db.connection.collection('recoveries').insertOne({userId:new (require('mongoose').Types.ObjectId)(adminId),tokenHash:crypto.createHash('sha256').update(token).digest('hex'),expiresAt:new Date(now.getTime()+60000)});
+  assert.equal((await request('/api/recover',{body:{token,password:'another-reset-password'}})).status,200);release();
+  assert.equal((await login).status,401);assert.equal(await db.connection.collection('sessions').countDocuments(),0);
+ }finally{release();bcrypt.compare=original;}
 });
