@@ -5,3 +5,7 @@ node_modules/
 .DS_Store
 coverage/
 
+
+# Local planning and review notes; not deployed or published.
+.superpowers/
+docs/superpowers/

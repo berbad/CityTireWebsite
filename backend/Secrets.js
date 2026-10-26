@@ -2,6 +2,8 @@ require('dotenv').config();
 const {SecretsManagerClient, GetSecretValueCommand} = require('@aws-sdk/client-secrets-manager')
   
 const getSecret = async (secretKey) => {
+    // An explicitly configured preview database must never fall through to production.
+    if (process.env[secretKey]) return process.env[secretKey];
     try {
         const client = new SecretsManagerClient({
             region: "us-east-1",

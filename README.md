@@ -23,19 +23,29 @@ The Lambda configuration uses `nodejs24.x`. Build a fresh deployment package
 from `backend`; generated `.serverless` archives are no longer tracked. The
 package excludes development dependencies, tests, and `.env` files.
 
-The API permits the production frontend `https://www.citytireshop.com`.
-Set `ALLOWED_ORIGINS` to an explicit comma-separated list to add trusted
-frontends. `NODE_ENV=development` also permits `http://localhost:3000`.
-Do not use a wildcard origin.
+Admin requests use same-origin /api routes. Configure the Vercel server-side
+CITY_TIRE_API_ORIGIN separately for each environment; previews must point only
+to an isolated backend/database. The gateway has no production fallback.
+Set ALLOWED_ORIGINS on Lambda to exact trusted frontend origins, including
+http://localhost:3000 explicitly for local development. Never use a wildcard.
 
-Login is limited to 20 attempts per IP per 15 minutes; registration to 5.
-These in-memory limits apply per Lambda instance. A shared rate-limit store
-or edge enforcement is required for a global limit across concurrent instances.
+Only the existing account selected by ADMIN_USER_ID and ADMIN_EMAIL can log in.
+Public registration is closed. Sessions use opaque HttpOnly cookies with a
+12-hour maximum lifetime and 30-minute idle timeout, enforced in MongoDB.
+Mutations also require a trusted Origin and CSRF token. Login/recovery attempts
+share a MongoDB rate limit of 10 per source IP per 15-minute window; behind the
+gateway, source IPs may group attempts. Password recovery invalidates previous
+credential generations and sessions.
 
-The application no longer logs database connection strings, user records, or
-JWTs. Before deploying, review access to existing application logs and rotate
-database credentials or invalidate tokens if they were exposed there. This
-repository change cannot remove previously emitted logs or rotate cloud secrets.
+Receipts save in MongoDB before PDF generation, with idempotent requests and
+immutable revisions for corrections. PDFs are stored per revision so retries
+do not create receipts or change previously exported documents. Receipt totals
+are individual records and do not represent total business revenue.
+
+See [the release checklist](docs/phase-one-release.md) for configuration,
+isolated preview checks, private account recovery, coordinated release and
+rollback. Do not log credentials, cookie values, recovery links or customer
+request bodies. Credentials exposed by legacy deployments need separate review.
 
 GitHub Actions runs regression tests, builds, and dependency audits. Dependabot
 checks all three npm projects and GitHub Actions weekly.
