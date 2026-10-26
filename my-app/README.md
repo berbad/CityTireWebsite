@@ -17,4 +17,6 @@ This repository tracks `build/`; regenerate it after source or dependency update
 
 CI: `npm ci && npm test && npm run build`, followed by `npm audit --audit-level=moderate`. The lockfile includes patched runtime and build dependencies; use normal parent dependency upgrades before introducing overrides.
 
+Tailwind 3 and postcss-nested 6 still request postcss-selector-parser 6, which is affected by GHSA-rj75-hqrm-r3gf. The targeted override uses patched 7.1.7 or later within v7 while retaining the existing Tailwind styling pipeline. Remove it when compatible parent releases select a patched parser themselves. The production CSS was compared before and after this override to check styling compatibility.
+
 Vercel uses `my-app` as its project root. `my-app/vercel.json` explicitly selects Vite, `npm ci`, `npm run build`, and the `build` output directory so a saved Create React App preset cannot select the old build pipeline. It also rewrites the existing SPA routes to `index.html`. Keep the Vercel project root set to `my-app`.
