@@ -18,6 +18,7 @@ const saved={id:'507f1f77bcf86cd799439011',number:'CT-20261026-TEST01',revision:
 globalThis.fetch=async(url,options={})=>{
  const path=String(url);let status=200,body={};
  if(path==='/api/session'){status=loggedIn?200:401;body=loggedIn?{user:{email:'citytirerepairshop5112@gmail.com'},csrfToken:'test-csrf'}:{message:'Please sign in.'};}
+ else if(path==='/api/reports/health'){body={enabled:false,latestReportId:null,current:{status:'not_connected'}};}
  else if(path==='/api/login'){loggedIn=true;body={user:{email:'citytirerepairshop5112@gmail.com'},csrfToken:'test-csrf'};}
  else if(path==='/api/recover'){body={message:'Password saved. You can sign in now.'};}
  else if(path==='/api/logout'){loggedIn=false;status=204;}

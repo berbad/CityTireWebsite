@@ -22,6 +22,10 @@ async function call(path, { method = 'GET', body, pdf = false } = {}) {
   } finally { clearTimeout(timer); }
 }
 export const api = {
+  growthReports: cursor => call(`/reports${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`),
+  growthReport: id => call(`/reports/${encodeURIComponent(id)}`),
+  growthHealth: () => call('/reports/health'),
+  growthStatus: (id, body) => call(`/reports/${encodeURIComponent(id)}/status`, { method: 'POST', body }),
   websiteAnalytics: () => call('/analytics/website'),
   session: () => call('/session'),
   login: (email, password) => call('/login', { method: 'POST', body: { email, password } }),
