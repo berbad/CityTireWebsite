@@ -5,6 +5,7 @@ const {connect}=require('./db');
 const config={adminId:process.env.ADMIN_USER_ID,adminEmail:(process.env.ADMIN_EMAIL||'citytirerepairshop5112@gmail.com').toLowerCase(),origins:(process.env.ALLOWED_ORIGINS||'https://www.citytireshop.com').split(',').map(v=>v.trim()),production:process.env.NODE_ENV!=='development'};
 const websiteConfig={enabled:process.env.WEBSITE_ANALYTICS_ENABLED==='true',projectId:process.env.WEBSITE_PROJECT_ID,teamId:process.env.WEBSITE_TEAM_ID,coverageStart:process.env.WEBSITE_COVERAGE_START,tokenExpiresAt:process.env.WEBSITE_TOKEN_EXPIRES_AT,scheduleArn:process.env.WEBSITE_SCHEDULE_ARN};
 const analytics=require('./analytics/service').createAnalytics({connect,config:websiteConfig,tokenProvider:()=>require('./analytics/token').loadAnalyticsToken(process.env.WEBSITE_SECRET_ID)});
-const app=createApp({connect,config,analytics});
+const reports=require('./reports/service').createReports({connect,config:require('./reports/config').reportConfig()});
+const app=createApp({connect,config,analytics,reports});
 module.exports={createApp,handler:require('./analytics/handler').createHandler({http:serverless(app),sync:analytics.sync,scheduleArn:websiteConfig.scheduleArn})};
 if(require.main===module)app.listen(Number(process.env.PORT)||5000,'127.0.0.1',()=>console.log('City Tire API ready'));
