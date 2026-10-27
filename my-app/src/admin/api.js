@@ -22,6 +22,7 @@ async function call(path, { method = 'GET', body, pdf = false } = {}) {
   } finally { clearTimeout(timer); }
 }
 export const api = {
+  websiteAnalytics: () => call('/analytics/website'),
   session: () => call('/session'),
   login: (email, password) => call('/login', { method: 'POST', body: { email, password } }),
   logout: async () => { await call('/logout', { method: 'POST' }); csrfToken = ''; },

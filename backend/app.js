@@ -1,6 +1,6 @@
 const express=require('express');
 const {registerAuth}=require('./auth');
-function createApp({connect,config,clock=()=>new Date(),renderPdf}={}) {
+function createApp({connect,config,clock=()=>new Date(),renderPdf,analytics}={}) {
   if(!connect||!config)throw new Error('Application configuration is required');
   const app=express();app.disable('x-powered-by');
   // Never trust arbitrary forwarded IP headers on a public Lambda Function URL.
@@ -10,6 +10,7 @@ function createApp({connect,config,clock=()=>new Date(),renderPdf}={}) {
   app.get('/api',(req,res)=>res.json({message:'Hello from the backend!'}));
   const auth=registerAuth(app,{connect,config,clock});
   require('./receipts').registerReceipts(app,{auth,clock,config,renderPdf});
+  require('./analytics/routes').registerAnalytics(app,{auth,analytics:analytics||require('./analytics/service').createAnalytics({connect,clock})});
   app.use((req,res)=>res.status(404).json({message:'Not found.'}));
   app.use((error,req,res,next)=>{
     if(res.headersSent)return next(error);
