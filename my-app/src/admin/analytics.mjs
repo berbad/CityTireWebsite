@@ -18,9 +18,9 @@ export function chicagoDay(now) {
 }
 function daysBetween(start,end) { const days=[]; for(let day=start;day<=end;day=shift(day,1))days.push(day);return days; }
 function priorYear(day) { const next=`${Number(day.slice(0,4))-1}${day.slice(4)}`;return validDate(next)?next:null; }
-export function getPeriods(range='30d',comparison='previous',now=new Date()) {
+export function getPeriods(range='30d',comparison='previous',now=new Date(),timeZone='America/Chicago') {
   if(!RANGES.some(r=>r.key===range)||!['previous','year'].includes(comparison))throw new Error('Unsupported reporting period.');
-  const today=chicagoDay(now); let start,end,previousStart,previousEnd;
+  const today=timeZone==='UTC'?iso(now):chicagoDay(now); let start,end,previousStart,previousEnd;
   if(range==='12m') {
     const d=utc(today);const year=d.getUTCFullYear(),month=d.getUTCMonth();
     start=iso(new Date(Date.UTC(year,month-12,1)));end=iso(new Date(Date.UTC(year,month,0)));
@@ -35,11 +35,11 @@ export function getPeriods(range='30d',comparison='previous',now=new Date()) {
   }
   return {current:{start,end},previous:{start:previousStart,end:previousEnd},dates,comparisonDates};
 }
-export function normalizeSnapshot(raw) {
-  if(!raw||!['pending','not_connected','connected','delayed','error'].includes(raw.status)||!Array.isArray(raw.rows)||raw.rows.length>2000)throw new Error('Google data could not be read. Try again.');
+export function normalizeSnapshot(raw,metricDefinitions=METRICS) {
+  if(!raw||!['pending','not_connected','connected','delayed','error','waiting'].includes(raw.status)||!Array.isArray(raw.rows)||raw.rows.length>2000)throw new Error('Google data could not be read. Try again.');
   const seen=new Set();const rows=raw.rows.map(row=>{
     if(!row||!validDate(row.date)||seen.has(row.date))throw new Error('Google data could not be read. Try again.');
-    seen.add(row.date);return {date:row.date,...Object.fromEntries(METRICS.map(m=>[m.key,value(row[m.key])]))};
+    seen.add(row.date);return {date:row.date,...Object.fromEntries(metricDefinitions.map(m=>[m.key,value(row[m.key])]))};
   }).sort((a,b)=>a.date.localeCompare(b.date));
   const timestamp=typeof raw.lastSuccessfulAt==='string'&&Number.isFinite(Date.parse(raw.lastSuccessfulAt))?new Date(raw.lastSuccessfulAt).toISOString():null;
   return {status:raw.status,lastSuccessfulAt:timestamp,rows};
@@ -47,14 +47,14 @@ export function normalizeSnapshot(raw) {
 export function formatDate(day,monthOnly=false) { return utc(day).toLocaleDateString('en-US',{timeZone:'UTC',month:'short',...(monthOnly?{}:{day:'numeric'}),year:'numeric'}); }
 export function formatPeriod(period) { return `${formatDate(period.start)} – ${formatDate(period.end)}`; }
 function stats(values) { const count=values.filter(n=>n!==null).length;const total=sum(values);return {total,count,expected:values.length,complete:count===values.length&&total!==null}; }
-export function buildOverview(snapshot,range='30d',comparison='previous',now=new Date()) {
-  const period=getPeriods(range,comparison,now);const byDay=new Map(snapshot.rows.map(row=>[row.date,row]));
-  const yesterday=shift(chicagoDay(now),-1);
-  const latest=snapshot.rows.filter(row=>row.date<=yesterday&&METRICS.some(m=>row[m.key]!==null)).at(-1)?.date;
+export function buildOverview(snapshot,range='30d',comparison='previous',now=new Date(),{metrics:metricDefinitions=METRICS,timeZone='America/Chicago'}={}) {
+  const period=getPeriods(range,comparison,now,timeZone);const byDay=new Map(snapshot.rows.map(row=>[row.date,row]));
+  const yesterday=shift(timeZone==='UTC'?iso(now):chicagoDay(now),-1);
+  const latest=snapshot.rows.filter(row=>row.date<=yesterday&&metricDefinitions.some(m=>row[m.key]!==null)).at(-1)?.date;
   const age=snapshot.lastSuccessfulAt ? +now-Date.parse(snapshot.lastSuccessfulAt):Infinity;
   const stale=snapshot.rows.length>0 && (snapshot.status!=='connected'||age>3*DAY||age<0||!latest||latest<shift(yesterday,-3));
-  let rows=period.dates.map((date,i)=>({date,label:formatDate(date),comparisonDate:period.comparisonDates[i],...Object.fromEntries(METRICS.map(m=>[m.key,byDay.get(date)?.[m.key]??null])),previous:Object.fromEntries(METRICS.map(m=>[m.key,byDay.get(period.comparisonDates[i])?.[m.key]??null]))}));
-  const metrics=Object.fromEntries(METRICS.map(m=>{
+  let rows=period.dates.map((date,i)=>({date,label:formatDate(date),comparisonDate:period.comparisonDates[i],...Object.fromEntries(metricDefinitions.map(m=>[m.key,byDay.get(date)?.[m.key]??null])),previous:Object.fromEntries(metricDefinitions.map(m=>[m.key,byDay.get(period.comparisonDates[i])?.[m.key]??null]))}));
+  const metrics=Object.fromEntries(metricDefinitions.map(m=>{
     const current=stats(rows.map(r=>r[m.key]));
     // Aggregate comparison by its actual calendar period (including any leap day).
     const previous=stats(daysBetween(period.previous.start,period.previous.end).map(date=>byDay.get(date)?.[m.key]??null));
@@ -62,7 +62,7 @@ export function buildOverview(snapshot,range='30d',comparison='previous',now=new
     const reason=stale?'stale':!current.complete||!previous.complete?'incomplete':unequal?'unequal-period':previous.total===0?'zero-baseline':null;
     return [m.key,{...current,previous,reason,percent:reason?null:((current.total-previous.total)/previous.total)*100}];
   }));
-  const yearAvailable=Object.fromEntries(METRICS.map(m=>[m.key,period.dates.some(d=>byDay.get(priorYear(d))?.[m.key]!=null)]));
+  const yearAvailable=Object.fromEntries(metricDefinitions.map(m=>[m.key,period.dates.some(d=>byDay.get(priorYear(d))?.[m.key]!=null)]));
   if(range==='12m') {
     const months=[...new Set(period.dates.map(d=>d.slice(0,7)))];
     rows=months.map(month=>{
@@ -70,8 +70,8 @@ export function buildOverview(snapshot,range='30d',comparison='previous',now=new
       const pStart=`${previousMonth}-01`;const pEnd=iso(new Date(Date.UTC(Number(previousMonth.slice(0,4)),Number(previousMonth.slice(5)),0)));
       const previousDays=daysBetween(pStart,pEnd);
       return {date:`${month}-01`,label:formatDate(`${month}-01`,true),comparisonDate:pStart,monthly:true,
-        ...Object.fromEntries(METRICS.map(m=>{const s=stats(currentRows.map(r=>r[m.key]));return [m.key,s.complete?s.total:null];})),
-        previous:Object.fromEntries(METRICS.map(m=>{const s=stats(previousDays.map(d=>byDay.get(d)?.[m.key]??null));return [m.key,s.complete?s.total:null];}))};
+        ...Object.fromEntries(metricDefinitions.map(m=>{const s=stats(currentRows.map(r=>r[m.key]));return [m.key,s.complete?s.total:null];})),
+        previous:Object.fromEntries(metricDefinitions.map(m=>{const s=stats(previousDays.map(d=>byDay.get(d)?.[m.key]??null));return [m.key,s.complete?s.total:null];}))};
     });
   }
   return {...period,rows,metrics,stale,yearAvailable};
